@@ -75,7 +75,8 @@ const start = async () => {
     await checkPrismaConnection();
     // Регистрируем CORS
     await server.register(cors, {
-      origin: '*' // В продакшене лучше указать конкретные домены
+      origin: 'http://localhost:5173', // укажи свой фронтовый домен если другой
+      credentials: true
     });
 
     // Определяем роуты
