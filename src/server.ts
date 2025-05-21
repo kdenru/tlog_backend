@@ -71,7 +71,7 @@ const start = async () => {
     });
 
     await server.listen({ port: PORT, host: HOST });
-    console.log(`Сервер запущен на ${HOST}:${PORT} в режиме ${NODE_ENV}`);
+    server.log.info(`Сервер запущен на ${HOST}:${PORT} в режиме ${NODE_ENV}`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);
