@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.0.1",
     "@types/jsonwebtoken": "^9.0.9",
     "bcrypt": "^6.0.0",

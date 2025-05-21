@@ -27,7 +27,14 @@ export class AuthController {
         }
       }
       const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
-      return await reply.send({ token });
+      reply.setCookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 // 7 дней
+      })
+      return await reply.send({ id: user.id, username: user.username, role: user.role });
     } catch (err) {
       return await reply.status(401).send({ error: err instanceof Error ? err.message : 'Ошибка' });
     }

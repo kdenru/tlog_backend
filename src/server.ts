@@ -1,3 +1,4 @@
+import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
@@ -98,6 +99,8 @@ const start = async () => {
     server.get('/health', async (request, reply) => {
       return { status: 'ok', timestamp: new Date().toISOString() };
     });
+
+    await server.register(cookie);
 
     await server.listen({ port: PORT, host: HOST });
     server.log.info(`Сервер запущен на ${HOST}:${PORT} в режиме ${NODE_ENV}`);
