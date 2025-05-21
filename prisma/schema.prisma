@@ -20,20 +20,21 @@ enum UserRole {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  password  String
-  role      UserRole  @default(survivor)
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  password String
+  role     UserRole @default(survivor)
 
   taps      Tap[]
   userStats UserStat[]
 }
 
 model Round {
-  id        String    @id @default(uuid())
-  createdAt DateTime  @default(now())
-  startAt   DateTime
-  endAt     DateTime
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  startAt     DateTime
+  endAt       DateTime
+  totalPoints Int      @default(0)
 
   taps      Tap[]
   userStats UserStat[]
@@ -53,13 +54,13 @@ model Tap {
 }
 
 model UserStat {
-  id        String   @id @default(uuid())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  roundId   String
-  round     Round    @relation(fields: [roundId], references: [id])
-  tapCount  Int      @default(0)
-  points    Int      @default(0)
+  id       String @id @default(uuid())
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+  roundId  String
+  round    Round  @relation(fields: [roundId], references: [id])
+  tapCount Int    @default(0)
+  points   Int    @default(0)
 
   @@unique([userId, roundId])
   @@index([userId])
