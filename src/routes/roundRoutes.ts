@@ -6,4 +6,5 @@ export async function roundRoutes(server: FastifyInstance, roundService: RoundSe
   const roundController = new RoundController(roundService)
   server.post('/rounds', roundController.create.bind(roundController))
   server.get('/rounds', roundController.getAll.bind(roundController))
+  server.get('/rounds/:id', roundController.getInfo.bind(roundController))
 } 

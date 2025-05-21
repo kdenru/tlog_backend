@@ -2,9 +2,12 @@ import cors from '@fastify/cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import fastify from 'fastify';
+import jwt from 'jsonwebtoken';
 import { authRoutes } from './routes/authRoutes';
 import { roundRoutes } from './routes/roundRoutes';
+import { tapRoutes } from './routes/tapRoutes';
 import { RoundService } from './services/round.service';
+import { TapService } from './services/tap.service';
 import { UserService } from './services/user.service';
 
 // Загружаем переменные окружения
@@ -38,6 +41,7 @@ const server = fastify({
 const prisma = new PrismaClient();
 const userService = new UserService(prisma);
 const roundService = new RoundService(prisma, ROUND_DURATION, COOLDOWN_DURATION);
+const tapService = new TapService(prisma);
 
 // Проверяем коннект к базе через Prisma
 async function checkPrismaConnection() {
@@ -49,6 +53,20 @@ async function checkPrismaConnection() {
     process.exit(1);
   }
 }
+
+// Глобальный preHandler для авторизации
+server.addHook('preHandler', async (request, reply) => {
+  if (request.url === '/login') return
+  const auth = request.headers.authorization
+  if (!auth || !auth.startsWith('Bearer ')) {
+    return await reply.status(401).send({ error: 'Нет авторизации' })
+  }
+  try {
+    (request as any).user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET ?? 'secret')
+  } catch {
+    return await reply.status(401).send({ error: 'Неверный токен' })
+  }
+})
 
 // Запускаем сервер
 const start = async () => {
@@ -72,6 +90,9 @@ const start = async () => {
 
     // Подключаем roundRoutes
     await roundRoutes(server, roundService);
+
+    // Подключаем tapRoutes
+    await tapRoutes(server, tapService);
 
     // Статус-роут для проверки здоровья сервера
     server.get('/health', async (request, reply) => {

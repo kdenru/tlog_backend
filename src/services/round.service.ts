@@ -21,4 +21,28 @@ export class RoundService {
   async getAllRounds() {
     return await this.prisma.round.findMany({ orderBy: { startAt: 'desc' } })
   }
+
+  async getRoundInfo(roundId: string, userId: number) {
+    const round = await this.prisma.round.findUnique({
+      where: { id: roundId },
+      include: {
+        userStats: true
+      }
+    })
+    if (!round) return null
+
+    // Победитель — тот, у кого больше всего points
+    let winner = null
+    if (new Date() > round.endAt && round.userStats.length > 0) {
+      winner = round.userStats.reduce((max, stat) => stat.points > max.points ? stat : max, round.userStats[0])
+    }
+    // Свои очки
+    const myStat = round.userStats.find(stat => stat.userId === userId)
+
+    return {
+      ...round,
+      winner: winner ? { userId: winner.userId, points: winner.points } : null,
+      myPoints: myStat ? myStat.points : 0
+    }
+  }
 } 
