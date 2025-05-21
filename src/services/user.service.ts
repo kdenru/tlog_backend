@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { type PrismaClient, type User, UserRole } from '../../prisma/generated';
+import { type PrismaClient, type User, UserRole } from '@prisma/client';
 
 export class UserService {
   private readonly prisma: PrismaClient;

@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated"
 }
 
 datasource db {
@@ -25,4 +24,11 @@ model User {
   username String @unique
   password String
   role     UserRole @default(survivor)
+}
+
+model Round {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  startAt    DateTime
+  endAt      DateTime
 }

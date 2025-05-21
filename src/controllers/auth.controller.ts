@@ -1,5 +1,8 @@
-import { type FastifyRequest, type FastifyReply } from 'fastify';
+import { type FastifyReply, type FastifyRequest } from 'fastify';
+import jwt from 'jsonwebtoken';
 import { type UserService } from '../services/user.service';
+
+const JWT_SECRET = process.env.JWT_SECRET ?? 'secret';
 
 export class AuthController {
   private readonly userService: UserService;
@@ -23,7 +26,8 @@ export class AuthController {
           throw err;
         }
       }
-      return await reply.send({ id: user.id, username: user.username });
+      const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+      return await reply.send({ token });
     } catch (err) {
       return await reply.status(401).send({ error: err instanceof Error ? err.message : 'Ошибка' });
     }

@@ -1,8 +1,10 @@
 import cors from '@fastify/cors';
+import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import fastify from 'fastify';
-import { PrismaClient } from '../prisma/generated';
 import { authRoutes } from './routes/authRoutes';
+import { roundRoutes } from './routes/roundRoutes';
+import { RoundService } from './services/round.service';
 import { UserService } from './services/user.service';
 
 // Загружаем переменные окружения
@@ -12,6 +14,8 @@ dotenv.config();
 const PORT = parseInt(process.env.PORT ?? '3002', 10);
 const HOST = process.env.HOST ?? '0.0.0.0';
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
+const ROUND_DURATION = parseInt(process.env.ROUND_DURATION ?? '60', 10); // в минутах
+const COOLDOWN_DURATION = parseInt(process.env.COOLDOWN_DURATION ?? '30', 10); // в секундах
 
 // Создаем экземпляр Fastify
 const server = fastify({
@@ -33,14 +37,15 @@ const server = fastify({
 // Создаем экземпляр PrismaClient
 const prisma = new PrismaClient();
 const userService = new UserService(prisma);
+const roundService = new RoundService(prisma, ROUND_DURATION, COOLDOWN_DURATION);
 
 // Проверяем коннект к базе через Prisma
 async function checkPrismaConnection() {
   try {
     await prisma.$connect();
-    console.log('✅ Prisma: успешно приконнектились к базе!');
+    server.log.info('✅ Prisma: успешно приконнектились к базе!');
   } catch (err) {
-    console.error('❌ Prisma: не удалось приконнектиться к базе:', err);
+    server.log.error('❌ Prisma: не удалось приконнектиться к базе:', err);
     process.exit(1);
   }
 }
@@ -64,6 +69,9 @@ const start = async () => {
 
     // Подключаем authRoutes
     await authRoutes(server, userService);
+
+    // Подключаем roundRoutes
+    await roundRoutes(server, roundService);
 
     // Статус-роут для проверки здоровья сервера
     server.get('/health', async (request, reply) => {
