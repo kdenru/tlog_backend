@@ -2,6 +2,8 @@ import fastify from 'fastify';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '../prisma/generated';
+import { UserService } from './services/user.service';
+import { authRoutes } from './routes/authRoutes';
 
 // Загружаем переменные окружения
 dotenv.config();
@@ -30,6 +32,7 @@ const server = fastify({
 
 // Создаем экземпляр PrismaClient
 const prisma = new PrismaClient();
+const userService = new UserService(prisma);
 
 // Проверяем коннект к базе через Prisma
 async function checkPrismaConnection() {
@@ -58,6 +61,9 @@ const start = async () => {
         environment: NODE_ENV
       };
     });
+
+    // Подключаем authRoutes
+    await authRoutes(server, userService);
 
     // Статус-роут для проверки здоровья сервера
     server.get('/health', async (request, reply) => {
