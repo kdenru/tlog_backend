@@ -1,8 +1,8 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { UserService } from '../services/user.service';
+import { type FastifyRequest, type FastifyReply } from 'fastify';
+import { type UserService } from '../services/user.service';
 
 export class AuthController {
-  private userService: UserService;
+  private readonly userService: UserService;
   constructor(userService: UserService) {
     this.userService = userService;
   }
@@ -10,7 +10,7 @@ export class AuthController {
   async login(request: FastifyRequest, reply: FastifyReply) {
     const { username, password } = request.body as { username: string, password: string };
     if (!username || !password) {
-      return reply.status(400).send({ error: 'Имя и пароль обязательны' });
+      return await reply.status(400).send({ error: 'Имя и пароль обязательны' });
     }
     try {
       let user;
@@ -23,9 +23,9 @@ export class AuthController {
           throw err;
         }
       }
-      return reply.send({ id: user.id, username: user.username });
+      return await reply.send({ id: user.id, username: user.username });
     } catch (err) {
-      return reply.status(401).send({ error: err instanceof Error ? err.message : 'Ошибка' });
+      return await reply.status(401).send({ error: err instanceof Error ? err.message : 'Ошибка' });
     }
   }
 } 

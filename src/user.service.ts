@@ -1,8 +1,8 @@
-import { PrismaClient, User } from '../prisma/generated';
+import { type PrismaClient, type User } from '../prisma/generated';
 import bcrypt from 'bcrypt';
 
 export class UserService {
-  private prisma: PrismaClient;
+  private readonly prisma: PrismaClient;
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
@@ -11,7 +11,7 @@ export class UserService {
     const existing = await this.prisma.user.findUnique({ where: { username } });
     if (existing) throw new Error('Пользователь уже существует');
     const hash = await bcrypt.hash(password, 10);
-    return this.prisma.user.create({ data: { username, password: hash } });
+    return await this.prisma.user.create({ data: { username, password: hash } });
   }
 
   async login(username: string, password: string): Promise<User> {

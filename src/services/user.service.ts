@@ -1,8 +1,8 @@
-import { PrismaClient, User, UserRole } from '../../prisma/generated';
 import bcrypt from 'bcrypt';
+import { type PrismaClient, type User, UserRole } from '../../prisma/generated';
 
 export class UserService {
-  private prisma: PrismaClient;
+  private readonly prisma: PrismaClient;
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
@@ -14,7 +14,7 @@ export class UserService {
     let role: UserRole = UserRole.survivor;
     if (username === 'admin') role = UserRole.admin;
     else if (username === 'nikita') role = UserRole.nikita;
-    return this.prisma.user.create({ data: { username, password: hash, role } });
+    return await this.prisma.user.create({ data: { username, password: hash, role } });
   }
 
   async login(username: string, password: string): Promise<User> {
