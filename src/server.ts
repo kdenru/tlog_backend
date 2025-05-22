@@ -20,6 +20,7 @@ const HOST = process.env.HOST ?? '0.0.0.0';
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 const ROUND_DURATION = parseInt(process.env.ROUND_DURATION ?? '60', 10); // теперь в секундах
 const COOLDOWN_DURATION = parseInt(process.env.COOLDOWN_DURATION ?? '30', 10); // в секундах
+const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
 
 // Создаем экземпляр Fastify
 const server = fastify({
@@ -81,7 +82,7 @@ const start = async () => {
     await checkPrismaConnection();
     // Регистрируем CORS
     await server.register(cors, {
-      origin: 'http://localhost:5173', // укажи свой фронтовый домен если другой
+      origin: CORS_ORIGIN,
       credentials: true
     });
 

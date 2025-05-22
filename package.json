@@ -7,13 +7,15 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify --clear src/server.ts",
     "dev:debug": "ts-node-dev --respawn --transpile-only --inspect -- src/server.ts",
-    "build": "tsup src/server.ts --format cjs --clean",
+    "build": "tsc",
     "build:watch": "tsup src/server.ts --format cjs --clean --watch",
     "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
