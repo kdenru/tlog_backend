@@ -6,7 +6,7 @@ export class TapService {
     this.prisma = prisma
   }
 
-  async createTap(userId: number, roundId: string, _points: number) {
+  async createTap(userId: number, roundId: string) {
     return await this.prisma.$transaction(async (tx) => {
       // Проверяем активный ли раунд
       const round = await tx.round.findUnique({ where: { id: roundId } })
@@ -22,9 +22,9 @@ export class TapService {
       const stat = await tx.userStat.findUnique({ where: { userId_roundId: { userId, roundId } } })
       const tapCount = stat ? stat.tapCount + 1 : 1
 
-      // Если выживший Никита — очки не считаются
+      // Если Никита — очки не считаются
       let points = 0
-      const isNikita = user.role === 'survivor' && user.username.toLowerCase() === 'nikita'
+      const isNikita = user.role === 'nikita'
       if (!isNikita) {
         points = (tapCount % 11 === 0) ? 10 : 1
       }
@@ -56,7 +56,7 @@ export class TapService {
       }
       // Получаем актуальное количество очков
       const userStat = await tx.userStat.findUnique({ where: { userId_roundId: { userId, roundId } } })
-      return { myPoints: userStat?.points ?? 0 }
+      return { myPoints: isNikita ? 0 : (userStat?.points ?? 0) }
     })
   }
 } 

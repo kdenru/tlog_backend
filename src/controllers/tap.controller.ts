@@ -9,11 +9,11 @@ export class TapController {
 
   async create(request: FastifyRequest, reply: FastifyReply) {
     const user = (request as any).user
-    const { roundId, points } = request.body as { roundId: string, points: number }
-    if (!roundId || typeof points !== 'number') {
-      return await reply.status(400).send({ error: 'roundId и points обязательны' })
+    const { roundId } = request.body as { roundId: string }
+    if (!roundId) {
+      return await reply.status(400).send({ error: 'roundId обязателен' })
     }
-    const tap = await this.tapService.createTap(Number(user.id), roundId, points)
+    const tap = await this.tapService.createTap(Number(user.id), roundId)
     return await reply.send(tap)
   }
 } 

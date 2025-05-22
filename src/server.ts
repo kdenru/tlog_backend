@@ -7,9 +7,9 @@ import jwt from 'jsonwebtoken';
 import { authRoutes } from './routes/authRoutes';
 import { roundRoutes } from './routes/roundRoutes';
 import { tapRoutes } from './routes/tapRoutes';
+import { UserService } from './services/auth.service';
 import { RoundService } from './services/round.service';
 import { TapService } from './services/tap.service';
-import { UserService } from './services/user.service';
 
 // Загружаем переменные окружения
 dotenv.config();
@@ -18,7 +18,7 @@ dotenv.config();
 const PORT = parseInt(process.env.PORT ?? '3002', 10);
 const HOST = process.env.HOST ?? '0.0.0.0';
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
-const ROUND_DURATION = parseInt(process.env.ROUND_DURATION ?? '60', 10); // в минутах
+const ROUND_DURATION = parseInt(process.env.ROUND_DURATION ?? '60', 10); // теперь в секундах
 const COOLDOWN_DURATION = parseInt(process.env.COOLDOWN_DURATION ?? '30', 10); // в секундах
 
 // Создаем экземпляр Fastify
@@ -58,12 +58,18 @@ async function checkPrismaConnection() {
 // Глобальный preHandler для авторизации
 server.addHook('preHandler', async (request, reply) => {
   if (request.url === '/login') return
-  const auth = request.headers.authorization
-  if (!auth || !auth.startsWith('Bearer ')) {
+  let token = request.cookies?.token
+  if (!token) {
+    const auth = request.headers.authorization
+    if (auth) {
+      token = auth
+    }
+  }
+  if (!token) {
     return await reply.status(401).send({ error: 'Нет авторизации' })
   }
   try {
-    (request as any).user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET ?? 'secret')
+    (request as any).user = jwt.verify(token, process.env.JWT_SECRET ?? 'secret')
   } catch {
     return await reply.status(401).send({ error: 'Неверный токен' })
   }

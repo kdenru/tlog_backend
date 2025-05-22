@@ -14,7 +14,7 @@ export class RoundService {
   async createRound() {
     const now = new Date()
     const startAt = new Date(now.getTime() + this.cooldownDuration * 1000)
-    const endAt = new Date(startAt.getTime() + this.roundDuration * 60 * 1000)
+    const endAt = new Date(startAt.getTime() + this.roundDuration * 1000)
     return await this.prisma.round.create({ data: { startAt, endAt } })
   }
 
@@ -26,7 +26,7 @@ export class RoundService {
     const round = await this.prisma.round.findUnique({
       where: { id: roundId },
       include: {
-        userStats: true
+        userStats: { include: { user: { select: { username: true } } } }
       }
     })
     if (!round) return null
@@ -41,7 +41,7 @@ export class RoundService {
 
     return {
       ...round,
-      winner: winner ? { userId: winner.userId, points: winner.points } : null,
+      winner: winner ? { username: winner.user.username, points: winner.points } : null,
       myPoints: myStat ? myStat.points : 0
     }
   }
