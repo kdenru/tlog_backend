@@ -21,7 +21,4 @@ COPY --from=build /app/node_modules ./node_modules
 
 ENV NODE_ENV=production
 
-# Генерим Prisma Client и применяем миграции при старте
-RUN npx prisma generate
-
 CMD npx prisma migrate deploy && node dist/server.js 
