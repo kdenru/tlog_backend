@@ -32,6 +32,7 @@ export class AuthController {
         secure: true,
         sameSite: 'none',
         path: '/',
+        domain: '.onrender.com',
         maxAge: 7 * 24 * 60 * 60 // 7 дней
       })
       return await reply.send({ id: user.id, username: user.username, role: user.role });
